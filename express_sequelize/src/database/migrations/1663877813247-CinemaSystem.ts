@@ -1,4 +1,4 @@
-import { QueryInterface } from 'sequelize';
+import { QueryInterface, DataTypes } from 'sequelize';
 
 export default {
   /**
@@ -31,8 +31,179 @@ export default {
    * As a cinema owner I don't want to configure the seating for every show
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  up: (queryInterface: QueryInterface): Promise<void> => {
-    throw new Error('TODO: implement migration in task 4');
+  up: async (queryInterface: QueryInterface): Promise<void> => {
+
+    await queryInterface.createTable('movies', {
+      id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      title: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      duration: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+    });
+  
+    // Create table for shows
+    await queryInterface.createTable('shows', {
+      id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      startTime: {
+        type: DataTypes.DATE,
+        allowNull: false,
+      },
+      endTime: {
+        type: DataTypes.DATE,
+        allowNull: false,
+      },
+      movieId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'movies',
+          key: 'id',
+        },
+      },
+      roomId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'rooms',
+          key: 'id',
+        },
+      },
+    });
+  
+    // Create table for cinemas
+    await queryInterface.createTable('cinemas', {
+      id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+    });
+  
+    // Create table for rooms
+    await queryInterface.createTable('rooms', {
+      id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      cinemaId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'cinemas',
+          key: 'id',
+        },
+      },
+    });
+  
+    // Create table for seat types
+    await queryInterface.createTable('seatTypes', {
+      id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      premiumPercent: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+      },
+    });
+  
+    // Create table for seats
+    await queryInterface.createTable('seats', {
+      id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      roomId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'rooms',
+          key: 'id',
+        },
+      },
+      seatTypeId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'seatTypes',
+          key: 'id',
+        },
+      },
+    });
+  
+    // Create table for bookings
+    await queryInterface.createTable('bookings', {
+      id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      showId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'shows',
+          key: 'id',
+        },
+      },
+      seatId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references : {
+          model: 'seats',
+          key: 'id',
+        },
+      },
+      });
+      
+      // Create index on movieId in shows table
+      await queryInterface.addIndex('shows', ['movieId']);
+      
+      // Create index on roomId in rooms table
+      await queryInterface.addIndex('rooms', ['cinemaId']);
+      
+      // Create index on roomId and seatTypeId in seats table
+      await queryInterface.addIndex('seats', ['roomId', 'seatTypeId']);
+
+    // throw new Error('TODO: implement migration in task 4');
   },
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
