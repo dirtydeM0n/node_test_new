@@ -5,7 +5,7 @@ import {
   AutoIncrement,
   PrimaryKey
 } from 'sequelize-typescript';
-import { ModelAttributeColumnOptions } from 'sequelize';
+import { BelongsTo, ModelAttributeColumnOptions } from 'sequelize';
 
 
 @Table({
@@ -34,4 +34,5 @@ export default class Workshop extends Model {
 
   @Column({ type: 'datetime' } as ModelAttributeColumnOptions)
   declare createdAt: string;
+
 }

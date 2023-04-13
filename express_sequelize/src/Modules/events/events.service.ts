@@ -1,4 +1,6 @@
+import { Op } from 'sequelize';
 import Event from './entities/event.entity';
+import Workshop from './entities/workshop.entity';
 
 
 export class EventsService {
@@ -85,7 +87,20 @@ export class EventsService {
      */
 
   async getEventsWithWorkshops() {
-    throw new Error('TODO task 1');
+    const events = await Event.findAll({ raw: true });
+    const workshops = await Workshop.findAll({ raw: true});
+    
+    let respArray :any = [];
+
+    respArray = events.map(data => {
+      return {...data}
+    })
+    
+    return respArray.map((data :any) => {
+      const workshopData = workshops.filter(workshop => workshop.eventId == data.id)
+      if(workshopData.length) data["workshops"] = workshopData
+      return data;
+    })
   }
 
   /* TODO: complete getFutureEventWithWorkshops so that it returns events with workshops, that have not yet started
@@ -155,6 +170,26 @@ export class EventsService {
     ```
      */
   async getFutureEventWithWorkshops() {
-    throw new Error('TODO task 2');
-  }
+    const now = new Date();
+    
+    const events = await Event.findAll({ raw: true });
+
+    const workshops = await Workshop.findAll({ raw: true, where: {
+      start: { [Op.gt]: now },
+    }});
+    
+    let respArray :any = [];
+
+    respArray = events.map(data => {
+      return {...data}
+    })
+    
+    return respArray.filter((data :any) => {
+      const workshopData = workshops.filter(workshop => workshop.eventId == data.id)
+      if(workshopData.length > 0) {
+        data["workshops"] = workshopData
+        return data;
+      }
+    })
+}
 }
